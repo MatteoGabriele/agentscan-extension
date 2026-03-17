@@ -6,10 +6,6 @@
   "permissions": ["scripting"],
   "host_permissions": ["https://github.com/*"],
   "background": {
-    "service_worker": "background.js"
-  },
-  "action": {
-    "default_title": "AgentScan",
-    "default_popup": "agentscan.html"
+    "service_worker": "./background.js"
   }
 }
