@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "AgentScan",
+  "version": "1.0.0",
+  "description": "View AgentScan analysis directly from GitHub profiles",
+  "permissions": ["scripting"],
+  "host_permissions": ["https://github.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "AgentScan",
+    "default_popup": "agentscan.html"
+  }
+}
