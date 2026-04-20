@@ -2,6 +2,9 @@
 
 Automatically display colored indicators next to user mentions on GitHub PRs and Issues. Quickly identify if contributors have **organic** (green), **mixed** (orange), **automation** (red) activities or have been **flagged by the community** (red).
 
+<img width="917" height="398" alt="Screenshot 2026-04-18 at 20 13 33" src="https://github.com/user-attachments/assets/dfb9582d-cd58-4250-aa71-0944bab2eae4" />
+
+
 ## Setup
 
 ### Getting a GitHub Token (Recommended)
