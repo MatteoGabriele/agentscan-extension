@@ -1,11 +1,26 @@
 {
   "manifest_version": 3,
   "name": "AgentScan",
-  "version": "1.0.0",
-  "description": "View AgentScan analysis directly from GitHub profiles",
-  "permissions": ["scripting"],
-  "host_permissions": ["https://github.com/*"],
+  "version": "2.0.0",
+  "description": "Analyze GitHub users involved in PRs and Issues with colored replicant indicators",
+  "permissions": ["scripting", "storage"],
+  "host_permissions": [
+    "https://github.com/*",
+    "https://api.github.com/*",
+    "https://agentscan.netlify.app/*"
+  ],
   "background": {
-    "service_worker": "./background.js"
-  }
+    "service_worker": "./dist/background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AgentScan - Configure GitHub Token"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*/*/pull/*", "https://github.com/*/*/issues/*"],
+      "js": ["./dist/content.js"],
+      "run_at": "document_end"
+    }
+  ]
 }
