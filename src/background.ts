@@ -3,7 +3,7 @@ import { getClassificationDetails, identify, type IdentifyResult } from "@unveil
 
 // Cache configuration
 const CACHE_KEY = "agentscan_analysis_cache";
-const CACHE_EXPIRY = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+const CACHE_EXPIRY = 2 * 60 * 60 * 1000;
 
 interface CacheEntry {
   analysis: any;

@@ -196,18 +196,41 @@ function findUserLinks() {
 
 window.addEventListener("load", findUserLinks);
 
+// Listen for GitHub's SPA navigation
+window.addEventListener("popstate", findUserLinks);
+window.addEventListener("hashchange", findUserLinks);
+
+// Listen for scroll to detect new content loaded by intersection observers
+let scrollDebounceTimer: NodeJS.Timeout | null = null;
+window.addEventListener(
+  "scroll",
+  () => {
+    if (scrollDebounceTimer) clearTimeout(scrollDebounceTimer);
+    scrollDebounceTimer = setTimeout(() => {
+      findUserLinks();
+    }, 100);
+  },
+  { passive: true },
+);
+
+// Debounced MutationObserver for general DOM changes
 let debounceTimer: NodeJS.Timeout | null = null;
 const observer = new MutationObserver(() => {
   if (debounceTimer) clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
     findUserLinks();
-  }, 30);
+  }, 50);
 });
 
 observer.observe(document.body, {
   childList: true,
   subtree: true,
 });
+
+// Periodic scan as a fallback to ensure we don't miss anything
+setInterval(() => {
+  findUserLinks();
+}, 2000);
 
 function getClassificationColor(classification: IdentityClassification): string {
   if (classification === "organic") {
