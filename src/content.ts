@@ -17,7 +17,9 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-const platform = typeof chrome === "undefined" ? browser : chrome;
+const _browser = (
+  typeof chrome === "undefined" ? (window as any).browser : chrome
+) as typeof chrome;
 
 // Intersection Observer to detect when user links come into view
 const intersectionObserver = new IntersectionObserver(
@@ -72,7 +74,7 @@ function analyzeUser(el: HTMLElement, username: string) {
   pendingLink.appendChild(pendingSvg);
   el.parentElement?.appendChild(pendingLink);
 
-  platform.runtime.sendMessage(
+  _browser.runtime.sendMessage(
     {
       action: "analyze",
       username,

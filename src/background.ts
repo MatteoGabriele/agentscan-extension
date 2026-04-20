@@ -14,12 +14,14 @@ interface AnalysisCache {
   [username: string]: CacheEntry;
 }
 
-const platform = typeof chrome === "undefined" ? browser : chrome;
+const _browser = (
+  typeof chrome === "undefined" ? (window as any).browser : chrome
+) as typeof chrome;
 
 // Get cached analysis if it exists and is still valid
 async function getCachedAnalysis(username: string): Promise<any | null> {
   return new Promise((resolve) => {
-    platform.storage.local.get([CACHE_KEY], (result: any) => {
+    _browser.storage.local.get([CACHE_KEY], (result: any) => {
       const cache: AnalysisCache = result[CACHE_KEY] || {};
       const entry = cache[username.toLowerCase()];
 
@@ -46,13 +48,13 @@ type AnalysisResponse = {
 // Store analysis result in cache
 async function setCachedAnalysis(analysis: AnalysisResponse): Promise<void> {
   return new Promise((resolve) => {
-    platform.storage.local.get([CACHE_KEY], (result: any) => {
+    _browser.storage.local.get([CACHE_KEY], (result: any) => {
       const cache: AnalysisCache = result[CACHE_KEY] || {};
       cache[analysis.username.toLowerCase()] = {
         analysis,
         timestamp: Date.now(),
       };
-      platform.storage.local.set({ [CACHE_KEY]: cache }, () => {
+      _browser.storage.local.set({ [CACHE_KEY]: cache }, () => {
         console.log(`[AgentScan] Cached analysis for ${analysis.username}`);
         resolve();
       });
@@ -61,14 +63,10 @@ async function setCachedAnalysis(analysis: AnalysisResponse): Promise<void> {
 }
 
 // Handle messages from content script
-platform.runtime.onMessage.addListener(
-  (
-    request: any,
-    sender: platform.runtime.MessageSender,
-    sendResponse: (response?: any) => void,
-  ) => {
+_browser.runtime.onMessage.addListener(
+  (request: any, _, sendResponse: (response?: any) => void) => {
     if (request.action === "clearCache") {
-      platform.storage.local.remove("agentscan_user_cache", () => {
+      _browser.storage.local.remove("agentscan_user_cache", () => {
         sendResponse({ success: true });
       });
       return true;
@@ -86,7 +84,7 @@ platform.runtime.onMessage.addListener(
 
           // Get token from storage if available
           const tokenResult = await new Promise<{ agentscan_github_token?: string }>((resolve) => {
-            platform.storage.local.get(["agentscan_github_token"], (result) => {
+            _browser.storage.local.get(["agentscan_github_token"], (result) => {
               resolve(result);
             });
           });
