@@ -58,13 +58,6 @@ async function setCachedAnalysis(analysis: AnalysisResponse): Promise<void> {
   });
 }
 
-// Listen for any extension installation/update to clear old cache if needed
-chrome.runtime.onInstalled.addListener((details: chrome.runtime.InstalledDetails) => {
-  if (details.reason === "install") {
-    console.log("[AgentScan] Extension installed");
-  }
-});
-
 // Handle messages from content script
 chrome.runtime.onMessage.addListener(
   (request: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
