@@ -32,7 +32,12 @@ function analyzeComments() {
 
     el.setAttribute("data-agentscan-analyzed", "true");
 
-    const username = el.textContent.toLowerCase().trim();
+    let username = el.textContent.toLowerCase().trim();
+
+    // Remove @ prefix if present
+    if (username.startsWith("@")) {
+      username = username.slice(1);
+    }
 
     if (!username) {
       continue;
@@ -82,6 +87,39 @@ function analyzeComments() {
         username,
       },
       (response) => {
+        // Handle errors or invalid responses
+        if (!response || !response.success || !response.list || !response.analysis) {
+          console.error(
+            `[AgentScan] Error analyzing ${username}:`,
+            response?.error || "Invalid response",
+          );
+          // Show a grayed out shield to indicate the analysis failed
+          const errorSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          errorSvg.setAttribute("width", "14");
+          errorSvg.setAttribute("height", "14");
+          errorSvg.setAttribute("viewBox", "0 0 24 24");
+          errorSvg.setAttribute("fill", "none");
+          errorSvg.setAttribute("stroke", "#d1d5db");
+          errorSvg.setAttribute("stroke-width", "2");
+          errorSvg.setAttribute("stroke-linecap", "round");
+          errorSvg.setAttribute("stroke-linejoin", "round");
+
+          const errorPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          errorPath.setAttribute("d", "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z");
+          errorSvg.appendChild(errorPath);
+
+          const errorTitle = document.createElementNS("http://www.w3.org/2000/svg", "title");
+          errorTitle.textContent = `Analysis failed: ${response?.error || "Unknown error"}`;
+          errorSvg.appendChild(errorTitle);
+
+          pendingLink.style.pointerEvents = "none";
+          pendingLink.style.opacity = "0.5";
+          // Replace the pending SVG with error SVG
+          const oldSvg = pendingLink.querySelector("svg");
+          if (oldSvg) oldSvg.replaceWith(errorSvg);
+          return;
+        }
+
         const isFlaggedByCommunity: boolean = response.list.some(
           (item: string) => username === item,
         );

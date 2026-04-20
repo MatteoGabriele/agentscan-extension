@@ -62,12 +62,6 @@ async function setCachedAnalysis(analysis: AnalysisResponse): Promise<void> {
 chrome.runtime.onInstalled.addListener((details: chrome.runtime.InstalledDetails) => {
   if (details.reason === "install") {
     console.log("[AgentScan] Extension installed");
-  } else if (details.reason === "update") {
-    console.log("[AgentScan] Extension updated");
-    // // Clear old cache on update
-    // chrome.storage.local.remove(CACHE_KEY, () => {
-    //   console.log("[AgentScan] Cleared analysis cache on update");
-    // });
   }
 });
 
@@ -91,16 +85,41 @@ chrome.runtime.onMessage.addListener(
             return;
           }
 
-          const octokit = new Octokit();
+          // Get token from storage if available
+          const tokenResult = await new Promise<{ agentscan_github_token?: string }>((resolve) => {
+            chrome.storage.local.get(["agentscan_github_token"], (result) => {
+              resolve(result);
+            });
+          });
+
+          const token = tokenResult.agentscan_github_token;
+          const octokit = new Octokit({
+            auth: token,
+          });
+
           const user = octokit.rest.users.getByUsername({ username: request.username });
           const events = octokit.rest.activity.listPublicEventsForUser({
             username: request.username,
             per_page: 100,
             page: 1,
           });
-          const automationsList = fetch(
-            "https://raw.githubusercontent.com/MatteoGabriele/agentscan/main/data/verified-automations-list.json",
-          ).then((response) => response.json());
+          const automationsList = octokit.rest.repos
+            .getContent({
+              owner: "MatteoGabriele",
+              repo: "agentscan",
+              path: "data/verified-automations-list.json",
+            })
+            .then((response) => {
+              if ("content" in response.data) {
+                const content = atob(response.data.content);
+                return JSON.parse(content);
+              }
+              return [];
+            })
+            .catch((error) => {
+              console.error("[AgentScan] Failed to fetch automations list:", error);
+              return [];
+            });
 
           const [userResponse, eventsResponse, automationsListResponse] = await Promise.all([
             user,
