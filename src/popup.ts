@@ -1,6 +1,8 @@
 document.getElementById("addBtn")?.addEventListener("click", saveToken);
 document.getElementById("deleteBtn")?.addEventListener("click", clearToken);
 
+const platform = typeof chrome === "undefined" ? browser : chrome;
+
 // Load token on popup open
 window.addEventListener("load", loadToken);
 
@@ -48,21 +50,21 @@ function saveToken(): void {
     return;
   }
 
-  chrome.storage.local.set({ agentscan_github_token: token }, () => {
+  platform.storage.local.set({ agentscan_github_token: token }, () => {
     showStatus("Token added successfully", "success");
     if (tokenInput) tokenInput.value = "";
 
     updateButtonVisibility(true);
 
     // Clear failed users cache so we retry with the token
-    chrome.storage.local.remove("agentscan_failed_users", () => {
+    platform.storage.local.remove("agentscan_failed_users", () => {
       console.log("[AgentScan] Cleared failed users cache");
     });
   });
 }
 
 function clearToken(): void {
-  chrome.storage.local.remove("agentscan_github_token", () => {
+  platform.storage.local.remove("agentscan_github_token", () => {
     showStatus("Token deleted", "success");
     const tokenInput = document.getElementById("tokenInput") as HTMLInputElement;
     if (tokenInput) tokenInput.value = "";
@@ -71,7 +73,7 @@ function clearToken(): void {
 }
 
 function loadToken(): void {
-  chrome.storage.local.get(["agentscan_github_token"], (result: any) => {
+  platform.storage.local.get(["agentscan_github_token"], (result: any) => {
     if (result.agentscan_github_token) {
       // Show masked token
       const token = result.agentscan_github_token;

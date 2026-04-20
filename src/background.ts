@@ -14,10 +14,12 @@ interface AnalysisCache {
   [username: string]: CacheEntry;
 }
 
+const platform = typeof chrome === "undefined" ? browser : chrome;
+
 // Get cached analysis if it exists and is still valid
 async function getCachedAnalysis(username: string): Promise<any | null> {
   return new Promise((resolve) => {
-    chrome.storage.local.get([CACHE_KEY], (result: any) => {
+    platform.storage.local.get([CACHE_KEY], (result: any) => {
       const cache: AnalysisCache = result[CACHE_KEY] || {};
       const entry = cache[username.toLowerCase()];
 
@@ -44,13 +46,13 @@ type AnalysisResponse = {
 // Store analysis result in cache
 async function setCachedAnalysis(analysis: AnalysisResponse): Promise<void> {
   return new Promise((resolve) => {
-    chrome.storage.local.get([CACHE_KEY], (result: any) => {
+    platform.storage.local.get([CACHE_KEY], (result: any) => {
       const cache: AnalysisCache = result[CACHE_KEY] || {};
       cache[analysis.username.toLowerCase()] = {
         analysis,
         timestamp: Date.now(),
       };
-      chrome.storage.local.set({ [CACHE_KEY]: cache }, () => {
+      platform.storage.local.set({ [CACHE_KEY]: cache }, () => {
         console.log(`[AgentScan] Cached analysis for ${analysis.username}`);
         resolve();
       });
@@ -59,10 +61,14 @@ async function setCachedAnalysis(analysis: AnalysisResponse): Promise<void> {
 }
 
 // Handle messages from content script
-chrome.runtime.onMessage.addListener(
-  (request: any, sender: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
+platform.runtime.onMessage.addListener(
+  (
+    request: any,
+    sender: platform.runtime.MessageSender,
+    sendResponse: (response?: any) => void,
+  ) => {
     if (request.action === "clearCache") {
-      chrome.storage.local.remove("agentscan_user_cache", () => {
+      platform.storage.local.remove("agentscan_user_cache", () => {
         sendResponse({ success: true });
       });
       return true;
@@ -80,7 +86,7 @@ chrome.runtime.onMessage.addListener(
 
           // Get token from storage if available
           const tokenResult = await new Promise<{ agentscan_github_token?: string }>((resolve) => {
-            chrome.storage.local.get(["agentscan_github_token"], (result) => {
+            platform.storage.local.get(["agentscan_github_token"], (result) => {
               resolve(result);
             });
           });
