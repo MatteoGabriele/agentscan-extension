@@ -17,6 +17,10 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+const _browser = (
+  typeof chrome === "undefined" ? (window as any).browser : chrome
+) as typeof chrome;
+
 // Intersection Observer to detect when user links come into view
 const intersectionObserver = new IntersectionObserver(
   (entries) => {
@@ -70,12 +74,12 @@ function analyzeUser(el: HTMLElement, username: string) {
   pendingLink.appendChild(pendingSvg);
   el.parentElement?.appendChild(pendingLink);
 
-  chrome.runtime.sendMessage(
+  _browser.runtime.sendMessage(
     {
       action: "analyze",
       username,
     },
-    (response) => {
+    (response: any) => {
       // Handle errors or invalid responses
       if (!response || !response.success || !response.list || !response.analysis) {
         console.error(
