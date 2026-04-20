@@ -17,11 +17,6 @@
       }
       .section {
         margin-bottom: 16px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid #e1e4e8;
-      }
-      .section:last-child {
-        border-bottom: none;
       }
       label {
         display: block;
@@ -66,6 +61,12 @@
       button.secondary:hover {
         background: #586069;
       }
+      .hidden {
+        display: none;
+      }
+      .hidden {
+        display: none;
+      }
       .status {
         font-size: 12px;
         padding: 8px;
@@ -109,12 +110,128 @@
         color: #6a737d;
         margin-top: 8px;
       }
+      .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 8px 0 0 0;
+      }
+      .info-list li {
+        font-size: 12px;
+        color: #586069;
+        line-height: 1.6;
+        padding-left: 16px;
+        position: relative;
+      }
+      .info-list li:before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: #0366d6;
+      }
+      .warning-alert {
+        background: #fee;
+        border: 1px solid #f97316;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 16px;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+      .warning-alert strong {
+        color: #dc2626;
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+      }
+      .warning-alert p {
+        color: #991b1b;
+        margin: 0;
+      }
+      .info-alert {
+        background: #fef3c7;
+        border: 1px solid #fbbf24;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 16px;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+      .info-alert strong {
+        color: #92400e;
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+      }
+      .info-alert p {
+        color: #78350f;
+        margin: 0;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #0d1117;
+          color: #e6edf3;
+        }
+        h1 {
+          color: #e6edf3;
+        }
+
+        label {
+          color: #8b949e;
+        }
+        input {
+          background: #0d1117;
+          border-color: #30363d;
+          color: #e6edf3;
+        }
+        input:focus {
+          border-color: #58a6ff;
+          box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+        .info-alert {
+          background: #3d3000;
+          border-color: #854d0e;
+        }
+        .info-alert strong {
+          color: #fbbf24;
+        }
+        .info-alert p {
+          color: #fcd34d;
+        }
+        .info-text {
+          color: #8b949e;
+        }
+        a {
+          color: #58a6ff;
+        }
+        .cache-info {
+          color: #8b949e;
+        }
+        .warning-alert {
+          background: #3d2a2a;
+          border-color: #f85149;
+        }
+        .warning-alert strong {
+          color: #ff7b72;
+        }
+        .warning-alert p {
+          color: #ff7b72;
+        }
+      }
     </style>
   </head>
   <body>
-    <h1>🔍 AgentScan</h1>
+    <h1>AgentScan</h1>
 
-    <div class="section">
+    <div class="warning-alert">
+      <strong>IMPORTANT</strong>
+      <p>
+        Create a token with no permissions (read-only public data). This ensures your token remains
+        secure even if compromised.
+      </p>
+    </div>
+
+    <div class="section" id="tokenSection">
       <label>GitHub Personal Access Token</label>
       <input
         type="password"
@@ -131,21 +248,46 @@
     </div>
 
     <div class="section">
-      <button id="saveBtn">Save Token</button>
-      <button class="secondary" id="clearBtn">Clear Token</button>
+      <button id="addBtn">Add Token</button>
+      <button class="secondary hidden" id="deleteBtn">Delete Token</button>
       <div id="status" class="status"></div>
       <div class="cache-info">Using cache: 24-hour duration per user</div>
     </div>
 
     <div class="section">
       <div class="info-text">
-        <strong>Why a token?</strong><br />
-        • Unauthenticated: 60 requests/hour<br />
-        • Authenticated: 5,000 requests/hour<br />
-        • Your token stays private in your browser
+        <strong>Why a token?</strong>
+        <ul class="info-list">
+          <li>Unauthenticated: 60 requests/hour</li>
+          <li>Authenticated: 5,000 requests/hour</li>
+        </ul>
       </div>
     </div>
 
+    <div class="section">
+      <div class="info-alert">
+        <strong>Rate Limits on Large PRs/Issues</strong>
+        <p>
+          On especially large pull requests or issues with many comments and interactions, you might
+          hit rate limits quicker.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Apply dark mode if system prefers it
+      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.documentElement.style.colorScheme = "dark";
+      }
+      // Listen for changes
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+        if (e.matches) {
+          document.documentElement.style.colorScheme = "dark";
+        } else {
+          document.documentElement.style.colorScheme = "light";
+        }
+      });
+    </script>
     <script src="./dist/popup.js"></script>
   </body>
 </html>

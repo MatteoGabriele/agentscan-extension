@@ -33,5 +33,9 @@
       "vite": "npm:@voidzero-dev/vite-plus-core@latest",
       "vitest": "npm:@voidzero-dev/vite-plus-test@latest"
     }
+  },
+  "dependencies": {
+    "@unveil/identity": "^1.0.0",
+    "octokit": "^5.0.5"
   }
 }
